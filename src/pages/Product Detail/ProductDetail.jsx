@@ -1,10 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './ProductDetail.css';
+import { getAllProductService } from '../../services/productService';
 
 const ProductDetail = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
+
+  const [fetchProductDetail, setFetchProductDetail] = useState([])
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await getAllProductService("")
+        setFetchProductDetail(response.products)
+      } catch (error) {
+        console.log('fetch Product error', error)
+      }
+    }
+
+    fetchProduct()
+
+  })
+
 
   const allProducts = [
     { id: 1, name: "Bánh mì trứng ốp la", images: "https://i.pinimg.com/564x/29/cf/68/29cf688a1d866eef3552da8878a5b8b5.jpg", price: 20000, description: "Bánh mì giòn rụm, kèm trứng ốp la và rau sống tươi.", rating: 4.5 },
@@ -75,8 +93,8 @@ const ProductDetail = () => {
             Tổng cộng: {(product.price * quantity).toLocaleString()} VND
           </p>
 
-          <button 
-            onClick={handleAddToCart} 
+          <button
+            onClick={handleAddToCart}
             className={`add-to-cart-btn ${isAddedToCart ? 'added' : ''}`}
           >
             Thêm vào giỏ hàng

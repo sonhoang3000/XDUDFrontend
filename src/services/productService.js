@@ -20,7 +20,12 @@ const updateProduct = (inputData) => {
     return axios.put("/api/update-product", inputData)
 }
 
+const getAllCart = () => {
+    return axios.get("/api/get-all-cart")
+}
+
 export {
-    getAllProductService, createNewProductService, deleteProductService, updateProduct
+    getAllProductService, createNewProductService, deleteProductService, updateProduct,
+    getAllCart
 }
 

@@ -1,53 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import './Cart.css';
+import { getAllCart } from '../../services/productService'
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, fetchCartItems] = useState([]);
 
   useEffect(() => {
-    const storedCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-    setCartItems(storedCartItems);
-  }, []);
-
-  const handleQuantityChange = (id, change) => {
-    const updatedCartItems = cartItems.map(item => {
-      if (item.id === id) {
-        const newQuantity = item.quantity + change;
-        const newTotalPrice = newQuantity * item.price;
-        return { ...item, quantity: newQuantity, totalPrice: newTotalPrice };
+    const fetchCart = async () => {
+      try {
+        const response = await getAllCart()
+        console.log('check response', response)
+        fetchCartItems(response.carts)
+      } catch (error) {
+        console.log('fetch cart error', error)
       }
-      return item;
-    }).filter(item => item.quantity > 0);
-
-    setCartItems(updatedCartItems);
-    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-  };
-
-  const handleRemoveItem = (id) => {
-    const updatedCartItems = cartItems.filter(item => item.id !== id);
-    setCartItems(updatedCartItems);
-    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-  };
-
-  const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + item.totalPrice, 0);
-  };
-
-  const handleCheckout = () => {
-    if (cartItems.length === 0) {
-      alert("Giỏ hàng của bạn đang trống!");
-      return;
     }
-
-    const totalPrice = getTotalPrice().toLocaleString();
-    const confirmed = window.confirm(`Tổng số tiền thanh toán là ${totalPrice} VND. Bạn có muốn thanh toán không?`);
-
-    if (confirmed) {
-      alert("Thanh toán thành công!");
-      setCartItems([]);
-      localStorage.removeItem('cartItems');
-    }
-  };
+    fetchCart()
+  });
 
   return (
     <div className="cart">
@@ -56,23 +25,31 @@ const Cart = () => {
         <p>Giỏ hàng của bạn đang trống!</p>
       ) : (
         <div>
-          {cartItems.map(item => (
-            <div key={item.id} className="cart-item">
-              <h3>{item.name}</h3>
-              <p>Giá: {item.price.toLocaleString()} VND</p>
-              <p>Số lượng: 
-                <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
-                {item.quantity}
-                <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
-              </p>
-              <p>Tổng: {item.totalPrice.toLocaleString()} VND</p>
-              <button onClick={() => handleRemoveItem(item.id)}>Xóa</button>
+          {cartItems.map((item, index) => (
+            <div key={index} style={{
+              backgroundColor: 'white',
+              padding: '20px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+              textAlign: 'center'
+            }}>
+              <img
+                src={item.imageProduct}
+                alt={item.nameProduct}
+                style={{
+                  width: '186px',
+                  height: '248px',
+                  borderRadius: '8px',
+                  objectFit: 'cover'
+                }}
+              />
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '10px 0' }}>{item.nameProduct}</h3>
+
+              <p style={{ color: '#d9534f', fontSize: '16px', fontWeight: 'bold' }}>Price: {item.priceProduct}</p>
+
             </div>
-          ))}
-          <h3>Tổng giá: {getTotalPrice().toLocaleString()} VND</h3>
-          <div className="checkout-container">
-            <button onClick={handleCheckout} className="checkout-btn">Thanh toán</button>
-          </div>
+          ))
+          }
         </div>
       )}
     </div>
